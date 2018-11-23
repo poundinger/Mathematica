@@ -1,0 +1,15 @@
+time = Table[t, {t, 0, 10^-7, 10^-9}];
+p1res = Table[0.5 Cos[2 \[Pi] 2 10^7 t] + 0.5, {t, 0, 10^-7, 10^-9}];
+res = Transpose[{time, p1res}];
+f[a_, b_, c_] := a Cos[2 \[Pi] b t] + c;;
+model = f[a, b, c];
+bc = {0 < a <= 0.5, 2 \[Pi] 10^6 < b < 2 \[Pi]  10^8, 
+  0 < c <= 0.5}; (*boundary condition*)
+fitres = NonlinearModelFit[res, {model, bc }, {a, b, c}, t, 
+  Method -> {NMinimize, 
+    Method -> {"DifferentialEvolution", "SearchPoints" -> 40, 
+      "ScalingFactor" -> 0.9, "CrossProbability" -> 0.1, 
+      "PostProcess" -> {FindMinimum, Method -> "QuasiNewton"}}}];
+param = fitres["BestFitParameters"]
+1/param[[2, 2]]
+Show[ListPlot[res], Plot[fitres[t], {t, 0, 10^-7}], ImageSize -> 800]
